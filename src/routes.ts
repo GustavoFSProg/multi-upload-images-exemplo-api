@@ -3,6 +3,7 @@ import userController from "./Controllers/userController";
 import productsControllermulti from "./Controllers/productsControllermulti";
 // import productController from "./Controllers/productController";
 import { multerConfig } from "./config/uploader_multi";
+import { multerConfigUmaImagem } from "./config/uploader";
 
 const routes = Router();
 
@@ -24,6 +25,11 @@ routes.post("/login", userController.Login);
 
 //products multi upload
 routes.post("/create-product", multerConfig, productsControllermulti.create);
+routes.put(
+  "/update-product/:id",
+  multerConfigUmaImagem,
+  productsControllermulti.update
+);
 routes.get("/get-products", productsControllermulti.getProducts);
 routes.get("/get-images", productsControllermulti.getImages);
 routes.get(

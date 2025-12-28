@@ -2,6 +2,10 @@ import { PrismaClient } from "../generated/prisma/client";
 import { Request, Response } from "express";
 import { convertBufferToString, uploader } from "../config/uploader_multi";
 import { v2 } from "cloudinary";
+import {
+  convertBufferToStringUmaImagem,
+  uploaderUmaImagem,
+} from "../config/uploader";
 
 const db = new PrismaClient();
 
@@ -132,17 +136,38 @@ async function create(req: Request, res: Response) {
   }
 }
 
-function update(req: Request, res: Response) {
-  const data = {
-    where: { id: req.params.id },
-    data: { name: req.body.name, price: req.body.price },
-  };
-  db.produto
-    .update(data)
-    .then(() =>
-      res.status(201).json({ message: "Produto atualizado com sucesso!" })
-    )
-    .catch((error: any) => res.status(400).json({ error }));
+async function update(req: Request, res: Response) {
+  try {
+    v2.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
+    console.log(req.file);
+
+    if (req.file === undefined)
+      return res
+        .status(400)
+        .json({ error: "Error converting buffer to string" });
+
+    const file = convertBufferToStringUmaImagem(req);
+    if (file === undefined)
+      return res
+        .status(400)
+        .json({ error: "Error converting buffer to string" });
+
+    const { secure_url } = await uploaderUmaImagem.upload(file);
+
+    await db.produto.update({
+      where: { id: req.params.id },
+      data: { image: secure_url, name: req.body.name },
+    });
+
+    return res.json("Sucesso!!");
+  } catch (error) {
+    return res.status(400).json({ error });
+  }
 }
 
 function destroy(req: Request, res: Response) {
@@ -152,4 +177,4 @@ function destroy(req: Request, res: Response) {
     .catch((error: any) => res.status(400).json({ error }));
 }
 
-export default { create, getProducts, getImages, showProductImages };
+export default { create, getProducts, getImages, update, showProductImages };
