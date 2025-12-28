@@ -5,11 +5,14 @@ import { v2 } from "cloudinary";
 
 const db = new PrismaClient();
 
-function get(_req: Request, res: Response) {
-  db.produto
-    .findMany()
-    .then((products: any) => res.status(201).json({ products }))
-    .catch((error: any) => res.status(400).json({ error }));
+async function getProducts(_req: Request, res: Response) {
+  try {
+    const data = await db.produto.findMany();
+
+    return res.json(data);
+  } catch (error) {
+    return res.json(error);
+  }
 }
 
 async function getImages(_req: Request, res: Response) {
@@ -40,11 +43,11 @@ async function showOne(req: Request, res: Response) {
 
 async function showProductImages(req: Request, res: Response) {
   try {
-    const images = await db.images.findMany({
+    const data = await db.images.findMany({
       where: { idProduto: req.params.id },
     });
 
-    return res.status(200).json(images);
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(200).json({ error });
   }
@@ -149,4 +152,4 @@ function destroy(req: Request, res: Response) {
     .catch((error: any) => res.status(400).json({ error }));
 }
 
-export default { create, get, getImages, showProductImages };
+export default { create, getProducts, getImages, showProductImages };

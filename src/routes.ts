@@ -24,7 +24,7 @@ routes.post("/login", userController.Login);
 
 //products multi upload
 routes.post("/create-product", multerConfig, productsControllermulti.create);
-routes.get("/get-products", productsControllermulti.get);
+routes.get("/get-products", productsControllermulti.getProducts);
 routes.get("/get-images", productsControllermulti.getImages);
 routes.get(
   "/get-product-images/:id",
