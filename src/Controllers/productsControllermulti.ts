@@ -161,7 +161,7 @@ async function update(req: Request, res: Response) {
 
     await db.produto.update({
       where: { id: req.params.id },
-      data: { image: secure_url, name: req.body.name },
+      data: { image: secure_url },
     });
 
     return res.json("Sucesso!!");
